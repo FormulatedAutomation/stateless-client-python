@@ -10,7 +10,7 @@ class StatelessClient:
         self.project_key = project_key
         self.scope = scope
         self.api_url = "https://hidden-stream-66951.herokuapp.com"
-        self.run_ids = list()
+        self.change_ids = list()
         self._data = None
         self._get_initial_data()
 
@@ -20,7 +20,7 @@ class StatelessClient:
 
     def set(self, key, value):
         try:
-            r = requests.post(f"{self.api_url}/api/state/commit/{self._current_run_id}/{self.scope}", json=value)
+            r = requests.post(f"{self.api_url}/api/state/commit/{self._current_change_id}/{self.scope}", json=value)
         except requests.exceptions.HTTPError:
             raise StatelessNetworkException
         response_json = r.json()
@@ -29,12 +29,12 @@ class StatelessClient:
         self._get_initial_data()
 
     @property
-    def _current_run_id(self):
+    def _current_change_id(self):
         try:
-            current_run_id = self.run_ids[0]
+            current_change_id = self.change_ids[0]
         except IndexError:
             raise StatelessNotInitedException
-        return current_run_id
+        return current_change_id
 
     def _get_initial_data(self):
         try:
@@ -44,11 +44,11 @@ class StatelessClient:
             raise StatelessNetworkException
         response_json = r.json()
         current_data = response_json['state']['data']
-        self._set_run_id(response_json['changeId'])
+        self._set_change_id(response_json['changeId'])
         self._set_data(current_data)
 
-    def _set_run_id(self, run_id):
-        self.run_ids.insert(0, run_id)
+    def _set_change_id(self, change_id):
+        self.change_ids.insert(0, change_id)
 
     def _set_data(self, data):
         self._data = data
