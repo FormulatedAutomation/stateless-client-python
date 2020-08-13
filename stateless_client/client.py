@@ -9,7 +9,7 @@ class StatelessClient:
     def __init__(self, project_key, scope):
         self.project_key = project_key
         self.scope = scope
-        self.api_url = "https://hidden-stream-66951.herokuapp.com"
+        self.api_url = "https://aion-dev.herokuapp.com"
         self.change_ids = list()
         self._data = None
         self._get_initial_data()
