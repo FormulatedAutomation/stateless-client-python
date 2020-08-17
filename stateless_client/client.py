@@ -1,4 +1,5 @@
 import requests
+from urllib.parse import urlparse
 
 from stateless_client.exceptions import StatelessNetworkException, StatelessNotCommittedException, \
     StatelessNotInitedException
@@ -6,13 +7,15 @@ from stateless_client.exceptions import StatelessNetworkException, StatelessNotC
 
 class StatelessClient:
 
-    def __init__(self, project_key, scope):
-        self.project_key = project_key
+    def __init__(self, api_uri, scope, fetch_initial_date=True):
+        u = urlparse(api_uri)
+        self.api_url = f'https://{u.hostname}'
+        self.project_key = u.path[1:]
         self.scope = scope
-        self.api_url = "https://aion-dev.herokuapp.com"
         self.change_ids = list()
         self._data = None
-        self._get_initial_data()
+        if fetch_initial_date:
+            self._get_initial_data()
 
     def get(self, key, default=None, *args, **kwargs):
         self._get_initial_data()

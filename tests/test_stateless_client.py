@@ -12,7 +12,7 @@ class TestStateless_client(unittest.TestCase):
     """Tests for `stateless_client` package."""
 
     def setUp(self):
-        self.test_scope = StatelessClient('testProject', 'testScope')
+        self.test_scope = StatelessClient('https://foo:password@aion.biz/testProject', 'testScope', False)
 
     def tearDown(self):
         pass
