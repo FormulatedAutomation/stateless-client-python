@@ -2,9 +2,12 @@ class StatelessNetworkException(Exception):
     pass
 
 
-class StatelessNotInitedException(Exception):
+class StatelessNotCheckedOutException(Exception):
     pass
 
 
 class StatelessNotCommittedException(Exception):
+    pass
+
+class StatelessBadStateChange(Exception):
     pass

@@ -2,26 +2,50 @@ import requests
 from urllib.parse import urlparse
 
 from stateless_client.exceptions import StatelessNetworkException, StatelessNotCommittedException, \
-    StatelessNotInitedException
+    StatelessNotCheckedOutException, StatelessBadStateChange
 
+STATE = {
+    "started": "Started",
+    "checked_out": "Checked Out",
+    "committed": "Committed",
+}
 
 class StatelessClient:
 
-    def __init__(self, api_uri, scope, fetch_initial_date=True):
+    def __init__(self, api_uri, scope, checkout_state_on_init=True):
         u = urlparse(api_uri)
         self.api_url = f'https://{u.hostname}'
         self.project_key = u.path[1:]
         self.scope = scope
         self.change_ids = list()
         self._data = None
-        if fetch_initial_date:
-            self._get_initial_data()
+        self.committed = False
+        self.state = STATE['started']
+        if checkout_state_on_init:
+            self.checkout()
+        return None
 
-    def get(self, key, default=None, *args, **kwargs):
-        self._get_initial_data()
-        return self._data.get(key, default)
+    def checkout(self):
+        self._checkout_state()
+        self._change_state(STATE['checked_out'])
+        self.committed = False
+        return self._data[self.scope]
 
-    def set(self, key, value):
+    @property
+    def get(self, default=None):
+        if not self.state == STATE['checked_out']:
+            raise StatelessNotCheckedOutException
+        return self._data.get(self.scope, default)
+
+    @property
+    def getFullScope(self):
+        if not self.state == STATE['checked_out']:
+            raise StatelessNotCheckedOutException
+        return self._data
+
+    def set(self, value):
+        if self.state == STATE['committed']:
+            raise StatelessAlreadyCommittedException
         try:
             r = requests.post(f"{self.api_url}/api/state/commit/{self._current_change_id}/{self.scope}", json=value)
         except requests.exceptions.HTTPError:
@@ -29,17 +53,18 @@ class StatelessClient:
         response_json = r.json()
         if not response_json['committed']:
             raise StatelessNotCommittedException
-        self._get_initial_data()
+        self._change_state(STATE['committed'])
+        self.committed = True
 
     @property
     def _current_change_id(self):
         try:
             current_change_id = self.change_ids[0]
         except IndexError:
-            raise StatelessNotInitedException
+            raise StatelessNotCheckedOutException
         return current_change_id
 
-    def _get_initial_data(self):
+    def _checkout_state(self):
         try:
             r = requests.get(f"{self.api_url}/api/state/checkout/{self.project_key}/{self.scope}")
             r.raise_for_status()
@@ -55,3 +80,14 @@ class StatelessClient:
 
     def _set_data(self, data):
         self._data = data
+
+    def _change_state(self, new_state):
+        if self.state == STATE['started']:
+            if not new_state == STATE['checked_out']:
+                raise StatelessBadStateChange(f'Can\'t change from Started to {new_state}')
+        elif self.state == STATE['checked_out']:
+            if not new_state == STATE['committed']:
+                raise StatelessBadStateChange(f'Can\'t change from \'Checked Out\' to {new_state}')
+        elif not new_state == STATE['checked_out']:
+                raise StatelessBadStateChange(f'Can\'t make changes after a Commit')
+        self.state = new_state
