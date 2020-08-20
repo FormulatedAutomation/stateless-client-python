@@ -11,3 +11,6 @@ class StatelessNotCommittedException(Exception):
 
 class StatelessBadStateChange(Exception):
     pass
+
+class AionNetworkException(Exception):
+    pass

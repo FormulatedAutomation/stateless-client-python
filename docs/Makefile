@@ -4,7 +4,7 @@
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = python -msphinx
-SPHINXPROJ    = stateless_client
+SPHINXPROJ    = aion_client
 SOURCEDIR     = .
 BUILDDIR      = _build
 

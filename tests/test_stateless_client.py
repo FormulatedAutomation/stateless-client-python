@@ -1,29 +1,31 @@
 #!/usr/bin/env python
 
-"""Tests for `stateless_client` package."""
+"""Tests for `aion_client` package."""
 
 
 import unittest
 
-from stateless_client.client import StatelessClient
+from aion_client.client import AionClient
 
 
-class TestStateless_client(unittest.TestCase):
-    """Tests for `stateless_client` package."""
+class Testaion_client(unittest.TestCase):
+    """Tests for `aion_client` package."""
 
     def setUp(self):
-        self.test_scope = StatelessClient('https://foo:password@aion-dev.herokuapp.com/testProject', 'testScope')
+        self.test_client = AionClient('https://foo:password@aion-dev.herokuapp.com/testProject', 'testScope')
+        self.stateless = self.test_client.stateless
+        self.queue = self.test_client.queue
 
     def tearDown(self):
         pass
 
     def test_get_current_state(self):
-        data = self.test_scope.get
+        data = self.stateless.get
         data['foo'] = 'baz'
-        self.test_scope.set(data)
+        self.stateless.set(data)
 
-        self.test_scope.checkout()
-        print(self.test_scope.get)
-        print(self.test_scope.getFullScope)
+        self.stateless.checkout()
+        print(self.stateless.get)
+        print(self.stateless.getFullScope)
         pass
 

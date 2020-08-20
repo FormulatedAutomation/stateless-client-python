@@ -12,7 +12,7 @@ To install Stateless Client, run this command in your terminal:
 
 .. code-block:: console
 
-    $ pip install stateless_client
+    $ pip install aion_client
 
 This is the preferred method to install Stateless Client, as it will always install the most recent stable release.
 
@@ -32,13 +32,13 @@ You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/mwcbrent/stateless_client
+    $ git clone git://github.com/mwcbrent/aion_client
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl -OJL https://github.com/mwcbrent/stateless_client/tarball/master
+    $ curl -OJL https://github.com/mwcbrent/aion_client/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
@@ -47,5 +47,5 @@ Once you have a copy of the source, you can install it with:
     $ python setup.py install
 
 
-.. _Github repo: https://github.com/mwcbrent/stateless_client
-.. _tarball: https://github.com/mwcbrent/stateless_client/tarball/master
+.. _Github repo: https://github.com/mwcbrent/aion_client
+.. _tarball: https://github.com/mwcbrent/aion_client/tarball/master

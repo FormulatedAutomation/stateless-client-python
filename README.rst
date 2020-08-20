@@ -3,11 +3,11 @@ Stateless Client
 ================
 
 
-.. image:: https://img.shields.io/pypi/v/stateless_client.svg
-        :target: https://pypi.python.org/pypi/stateless_client
+.. image:: https://img.shields.io/pypi/v/aion_client.svg
+        :target: https://pypi.python.org/pypi/aion_client
 
-.. image:: https://img.shields.io/travis/mwcbrent/stateless_client.svg
-        :target: https://travis-ci.com/mwcbrent/stateless_client
+.. image:: https://img.shields.io/travis/mwcbrent/aion_client.svg
+        :target: https://travis-ci.com/mwcbrent/aion_client
 
 .. image:: https://readthedocs.org/projects/stateless-client/badge/?version=latest
         :target: https://stateless-client.readthedocs.io/en/latest/?badge=latest

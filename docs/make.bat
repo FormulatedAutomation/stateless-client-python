@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=stateless_client
+set SPHINXPROJ=aion_client
 
 if "%1" == "" goto help
 

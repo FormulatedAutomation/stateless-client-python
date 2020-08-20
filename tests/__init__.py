@@ -1,1 +1,1 @@
-"""Unit test package for stateless_client."""
+"""Unit test package for aion_client."""

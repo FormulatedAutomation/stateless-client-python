@@ -1,4 +1,4 @@
-"""Top-level package for Stateless Client."""
+"""Top-level package for Aion Client."""
 
 __author__ = """Brent Sanders"""
 __email__ = 'brent@brentsanders.io'

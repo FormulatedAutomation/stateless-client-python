@@ -1,8 +1,4 @@
 import requests
-from urllib.parse import urlparse
-
-from stateless_client.exceptions import StatelessNetworkException, StatelessNotCommittedException, \
-    StatelessNotCheckedOutException, StatelessBadStateChange
 
 STATE = {
     "started": "Started",
@@ -10,12 +6,14 @@ STATE = {
     "committed": "Committed",
 }
 
-class StatelessClient:
+from aion_client.exceptions import StatelessNetworkException, StatelessNotCommittedException, \
+    StatelessNotCheckedOutException, StatelessBadStateChange
 
-    def __init__(self, api_uri, scope, checkout_state_on_init=True):
-        u = urlparse(api_uri)
-        self.api_url = f'https://{u.hostname}'
-        self.project_key = u.path[1:]
+class Stateless:
+
+    def __init__(self, api_url, project_id, scope, checkout_state_on_init=True):
+        self.api_url = api_url
+        self.project_id = project_id
         self.scope = scope
         self.change_ids = list()
         self._data = None
@@ -66,7 +64,7 @@ class StatelessClient:
 
     def _checkout_state(self):
         try:
-            r = requests.get(f"{self.api_url}/api/state/checkout/{self.project_key}/{self.scope}")
+            r = requests.get(f"{self.api_url}/api/state/checkout/{self.project_id}/{self.scope}")
             r.raise_for_status()
         except requests.exceptions.HTTPError:
             raise StatelessNetworkException
