@@ -1,15 +1,16 @@
 import requests
 
+from aion_client.exceptions import StatelessNetworkException, StatelessNotCommittedException, \
+    StatelessNotCheckedOutException, StatelessBadStateChange, StatelessAlreadyCommittedException
+
 STATE = {
     "started": "Started",
     "checked_out": "Checked Out",
     "committed": "Committed",
 }
 
-from aion_client.exceptions import StatelessNetworkException, StatelessNotCommittedException, \
-    StatelessNotCheckedOutException, StatelessBadStateChange
 
-class Stateless:
+class StatelessClient:
 
     def __init__(self, api_url, project_id, scope, checkout_state_on_init=True):
         self.api_url = api_url
@@ -27,7 +28,9 @@ class Stateless:
         self._checkout_state()
         self._change_state(STATE['checked_out'])
         self.committed = False
-        return self._data[self.scope]
+        if self.scope in self._data:
+            return self._data[self.scope]
+        return {}
 
     @property
     def get(self, default=None):
@@ -36,12 +39,14 @@ class Stateless:
         return self._data.get(self.scope, default)
 
     @property
-    def getFullScope(self):
+    def get_full_scope(self):
         if not self.state == STATE['checked_out']:
             raise StatelessNotCheckedOutException
         return self._data
 
     def set(self, value):
+        print(self.scope)
+        print(value)
         if self.state == STATE['committed']:
             raise StatelessAlreadyCommittedException
         try:
@@ -71,6 +76,7 @@ class Stateless:
         response_json = r.json()
         current_data = response_json['state']['data']
         self._set_change_id(response_json['changeId'])
+        print(current_data)
         self._set_data(current_data)
 
     def _set_change_id(self, change_id):

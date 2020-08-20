@@ -12,9 +12,9 @@ class Testaion_client(unittest.TestCase):
     """Tests for `aion_client` package."""
 
     def setUp(self):
-        self.test_client = AionClient('https://foo:password@aion-dev.herokuapp.com/testProject', 'testScope')
-        self.stateless = self.test_client.stateless
-        self.queue = self.test_client.queue
+        self.test_client = AionClient('https://foo:password@aion-dev.herokuapp.com/testProject2')
+        self.stateless = self.test_client.get_stateless_client('test_scope')
+        self.queue = self.test_client.get_queue_client('test_queue')
 
     def tearDown(self):
         pass
@@ -26,6 +26,6 @@ class Testaion_client(unittest.TestCase):
 
         self.stateless.checkout()
         print(self.stateless.get)
-        print(self.stateless.getFullScope)
+        print(self.stateless.get_full_scope)
         pass
 
