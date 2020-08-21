@@ -29,3 +29,11 @@ class Testaion_client(unittest.TestCase):
         print(self.stateless.get_full_scope)
         pass
 
+    def test_queueing(self):
+        self.queue.publish({'weather': 'sunny'})
+        self.queue.publish({'weather': 'sunny'})
+        item = self.queue.fetch()
+        print(item.id)
+        print(item.data)
+        item.complete()
+

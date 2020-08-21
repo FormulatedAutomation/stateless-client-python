@@ -25,8 +25,15 @@ class QueueItem:
 
     def __init__(self, q_item, q):
         self.id = q_item['id']
-        self.data = q_item['data']
+        self._data = q_item['data']
         self.q = q
+
+    @property
+    def data(self):
+        return self._data
+
+    def get(self, key):
+        return self._data[key]
 
     def complete(self):
         self.q.complete(self.id)
@@ -73,7 +80,7 @@ class QueueAPI:
         except requests.exceptions.HTTPError:
             raise AionNetworkException
         response_json = r.json()
-        if not response_json.get('committed'):
+        if not response_json.get('result'):
             raise AionNotCommittedException
         return response_json
 
@@ -85,6 +92,6 @@ class QueueAPI:
         except requests.exceptions.HTTPError:
             raise AionNetworkException
         response_json = r.json()
-        if not response_json['committed']:
+        if not response_json['result']:
             raise AionNotCommittedException
         return response_json
