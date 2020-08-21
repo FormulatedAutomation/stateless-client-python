@@ -30,6 +30,8 @@ class Testaion_client(unittest.TestCase):
         pass
 
     def test_queueing(self):
+        item = self.queue.fetch()
+        print(item)
         self.queue.publish({'weather': 'sunny'})
         self.queue.publish({'weather': 'sunny'})
         item = self.queue.fetch()

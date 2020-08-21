@@ -69,7 +69,10 @@ class QueueAPI:
         except requests.exceptions.HTTPError:
             raise AionNetworkException
         if r.json():
-            return QueueItem(r.json()['result'], self)
+            if r.json()['result']['id']:
+                return QueueItem(r.json()['result'], self)
+            else:
+                return None
         return None
 
     def complete(self, id):
