@@ -66,13 +66,11 @@ class QueueAPI:
         try:
             r = requests.get(f"{self.api_url}/api/queue/fetch/{self.project_id}/{queue_name}")
             r.raise_for_status()
+            result = r.json().get('result', None)
         except requests.exceptions.HTTPError:
             raise AionNetworkException
-        if r.json():
-            if r.json()['result']['id']:
-                return QueueItem(r.json()['result'], self)
-            else:
-                return None
+        if result:
+            return QueueItem(result, self)
         return None
 
     def complete(self, id):
