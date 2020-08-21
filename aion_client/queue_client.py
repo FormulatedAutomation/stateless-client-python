@@ -12,7 +12,7 @@ class QueueClient:
     def publish(self, value):
         return self.queue.publish(self.queue_name, value)
 
-    def fetch(self, value):
+    def fetch(self):
         return self.queue.fetch(self.queue_name)
 
     def complete(self, id):
