@@ -4,8 +4,12 @@
 
 
 import unittest
+import re
 
 from aion_client.client import AionClient
+
+
+UUID_REGEX = re.compile("^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$", flags=re.IGNORECASE)
 
 
 class Testaion_client(unittest.TestCase):
@@ -25,19 +29,20 @@ class Testaion_client(unittest.TestCase):
         self.stateless.set(data)
 
         self.stateless.checkout()
-        print(self.stateless.get)
-        print(self.stateless.get_full_scope)
-        pass
+        self.assertEqual('baz', self.stateless.get['foo'])
 
     def test_job_queuing(self):
         item = self.job.fetch()
-        print("Item")
-        print(item)
-        print("/Item")
         self.job.publish({'weather': 'sunny'})
         self.job.publish({'weather': 'sunny'})
         item = self.job.fetch()
-        print(item.work_ticket['id'])
-        print(item.data)
+        self.assertIsNotNone(UUID_REGEX.match(item.work_ticket['id']))
+        item.complete()
+
+    def test_job_start(self):
+        item = self.job.start({'botId': 'bot12345'})
+        self.assertIsNotNone(UUID_REGEX.match(item.job['id']))
+        self.assertIsNotNone(UUID_REGEX.match(item.work_ticket['id']))
+        self.assertTrue(item.work_ticket['workerData']['botId'] == 'bot12345')
         item.complete()
 

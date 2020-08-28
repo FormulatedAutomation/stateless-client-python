@@ -12,6 +12,9 @@ class JobClient:
     def publish(self, value):
         return self.job.publish(self.job_name, value)
 
+    def start(self, workerData={}, options={}):
+        return self.job.start(self.job_name, workerData, options)
+
     def fetch(self, workerData={}):
         return self.job.fetch(self.job_name, workerData)
 
@@ -60,8 +63,25 @@ class JobAPI:
             headers=headers)
         except requests.exceptions.HTTPError:
             raise AionNetworkException
-        response_json = r.json()
+        response_json = r.json().get('result', None)
         return response_json
+
+    def start(self, job_name, workerData, options={}):
+        headers = {'Content-type': 'application/json; charset=utf-8'}
+        try:
+            postData = {
+                'workerData': workerData,
+                'options':  options,
+            }
+            r = requests.post(f"{self.api_url}/api/job/start/{self.project_id}/{job_name}",
+            data=json.dumps(postData, cls=DateTimeEncoder),
+            headers=headers)
+            result = r.json().get('result', None)
+        except requests.exceptions.HTTPError:
+            raise AionNetworkException
+        if result and result['job']:
+            return JobItem(result, self)
+        return None
 
     # Returns one item from the job
     def fetch(self, job_name, workerData={}):
