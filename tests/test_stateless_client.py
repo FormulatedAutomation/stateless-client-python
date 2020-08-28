@@ -14,7 +14,7 @@ class Testaion_client(unittest.TestCase):
     def setUp(self):
         self.test_client = AionClient('https://foo:password@aion-dev.herokuapp.com/testProject2')
         self.stateless = self.test_client.get_stateless_client('test_scope')
-        self.queue = self.test_client.get_queue_client('test_queue2')
+        self.job = self.test_client.get_job_client('test_queue2')
 
     def tearDown(self):
         pass
@@ -29,13 +29,15 @@ class Testaion_client(unittest.TestCase):
         print(self.stateless.get_full_scope)
         pass
 
-    def test_queueing(self):
-        item = self.queue.fetch()
+    def test_job_queuing(self):
+        item = self.job.fetch()
+        print("Item")
         print(item)
-        self.queue.publish({'weather': 'sunny'})
-        self.queue.publish({'weather': 'sunny'})
-        item = self.queue.fetch()
-        print(item.id)
+        print("/Item")
+        self.job.publish({'weather': 'sunny'})
+        self.job.publish({'weather': 'sunny'})
+        item = self.job.fetch()
+        print(item.work_ticket['id'])
         print(item.data)
         item.complete()
 

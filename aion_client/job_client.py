@@ -4,28 +4,30 @@ import json
 from aion_client.exceptions import AionNetworkException, AionNotCommittedException
 from aion_client.datetime_json_encoder import DateTimeEncoder
 
-class QueueClient:
-    def __init__(self, api_url, project_id, queue_name):
-        self.queue = QueueAPI(api_url, project_id)
-        self.queue_name = queue_name
+class JobClient:
+    def __init__(self, api_url, project_id, job_name):
+        self.job = JobAPI(api_url, project_id)
+        self.job_name = job_name
 
     def publish(self, value):
-        return self.queue.publish(self.queue_name, value)
+        return self.job.publish(self.job_name, value)
 
-    def fetch(self):
-        return self.queue.fetch(self.queue_name)
+    def fetch(self, workerData={}):
+        return self.job.fetch(self.job_name, workerData)
 
     def complete(self, id):
-        return self.queue.complete(id)
+        return self.job.complete(id)
 
     def fail(self, id):
-        return self.queue.complete(id)
+        return self.job.complete(id)
 
-class QueueItem:
+class JobItem:
 
     def __init__(self, q_item, q):
-        self.id = q_item['id']
-        self._data = q_item['data']
+        self.job = q_item['job']
+        self.work_ticket = q_item['workTicket']
+        if (self.job):
+            self._data = self.job['data']
         self.q = q
 
     @property
@@ -35,25 +37,25 @@ class QueueItem:
     def get(self, key):
         return self._data[key]
 
-    def complete(self):
-        self.q.complete(self.id)
+    def complete(self, runData={}):
+        self.q.complete(self.work_ticket['id'], runData)
 
-    def fail(self):
-        self.q.fail(self.id)
+    def fail(self, runData={}):
+        self.q.fail(self.work_ticket['id'], runData)
 
-class QueueAPI:
+class JobAPI:
 
     def __init__(self, api_url, project_id):
         self.project_id = project_id
         self.api_url = api_url
 
-    def publish(self, queue_name, value):
+    def publish(self, job_name, value):
         headers = {'Content-type': 'application/json; charset=utf-8'}
         try:
             postData = {
                 'data': value
             }
-            r = requests.post(f"{self.api_url}/api/queue/publish/{self.project_id}/{queue_name}",
+            r = requests.post(f"{self.api_url}/api/job/publish/{self.project_id}/{job_name}",
             data=json.dumps(postData, cls=DateTimeEncoder),
             headers=headers)
         except requests.exceptions.HTTPError:
@@ -61,22 +63,32 @@ class QueueAPI:
         response_json = r.json()
         return response_json
 
-    # Returns one item from the queue
-    def fetch(self, queue_name):
+    # Returns one item from the job
+    def fetch(self, job_name, workerData={}):
+        headers = {'Content-type': 'application/json; charset=utf-8'}
+        postData = {
+            'workerData': workerData
+        }
         try:
-            r = requests.get(f"{self.api_url}/api/queue/fetch/{self.project_id}/{queue_name}")
+            r = requests.post(f"{self.api_url}/api/job/fetch/{self.project_id}/{job_name}",
+            data=json.dumps(postData, cls=DateTimeEncoder),
+            headers=headers)
             r.raise_for_status()
             result = r.json().get('result', None)
         except requests.exceptions.HTTPError:
             raise AionNetworkException
-        if result:
-            return QueueItem(result, self)
+        if result and result['job']:
+            return JobItem(result, self)
         return None
 
-    def complete(self, id):
+    def complete(self, id, runData={}):
         headers = {'Content-type': 'application/json; charset=utf-8'}
+        postData = {
+            'runData': runData
+        }
         try:
-            r = requests.post(f"{self.api_url}/api/queue/complete/{id}",
+            r = requests.post(f"{self.api_url}/api/workTicket/{id}/complete",
+            data=json.dumps(postData, cls=DateTimeEncoder),
             headers=headers)
         except requests.exceptions.HTTPError:
             raise AionNetworkException
@@ -85,10 +97,14 @@ class QueueAPI:
             raise AionNotCommittedException
         return response_json
 
-    def fail(self, id):
+    def fail(self, id, runData={}):
         headers = {'Content-type': 'application/json; charset=utf-8'}
+        postData = {
+            'runData': runData
+        }
         try:
-            r = requests.post(f"{self.api_url}/api/queue/fail/{id}",
+            r = requests.post(f"{self.api_url}/api/workTicket/{id}/fail",
+            data=json.dumps(postData, cls=DateTimeEncoder),
             headers=headers)
         except requests.exceptions.HTTPError:
             raise AionNetworkException
