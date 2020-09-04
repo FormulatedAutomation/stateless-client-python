@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 
+
 # Needed to serialize datetime
 class DateTimeEncoder(json.JSONEncoder):
     def default(self, o):
@@ -8,4 +9,3 @@ class DateTimeEncoder(json.JSONEncoder):
             return o.isoformat()
 
         return json.JSONEncoder.default(self, o)
-
